@@ -71,8 +71,9 @@ const pulse = {
 const explosions    = [];
 const pendingSpawns = [];
 
-let lastTime     = 0;
-let gameOver     = false;
+let lastTime          = 0;
+let pulseCooldownEnd  = 0;
+let gameOver          = false;
 let gameOverTime = 0;
 let gameStarted  = false;
 let deathCause   = '';
@@ -108,11 +109,14 @@ canvas.addEventListener('mousedown', (e) => {
     return;
   }
   if (gameOver || !player.alive) return;
+  const fireNow = performance.now();
+  if (fireNow < pulseCooldownEnd) return;
   // mousedown 時点の座標が「ユーザーが見ていた描画済み座標」と完全一致
-  pulse.x       = player.x + Math.cos(player.angle) * PULSE_OFFSET;
-  pulse.y       = player.y + Math.sin(player.angle) * PULSE_OFFSET;
-  pulse.active  = true;
-  pulse.endTime = performance.now() + 100;
+  pulse.x           = player.x + Math.cos(player.angle) * PULSE_OFFSET;
+  pulse.y           = player.y + Math.sin(player.angle) * PULSE_OFFSET;
+  pulse.active      = true;
+  pulse.endTime     = fireNow + 100;
+  pulseCooldownEnd  = fireNow + 500;
   for (const b of balls) {
     if (b.faction === 'enemy' && b !== originalBall) {
       const dx = b.x - pulse.x;
@@ -189,15 +193,28 @@ function drawExplosion(exp) {
   ctx.stroke();
 }
 
-function drawPlayer() {
+function drawPlayer(now) {
   ctx.beginPath();
   ctx.arc(player.x, player.y, player.radius, 0, Math.PI * 2);
   const gradient = ctx.createRadialGradient(
     player.x - player.radius * 0.3, player.y - player.radius * 0.3, 2,
     player.x, player.y, player.radius
   );
-  gradient.addColorStop(0, '#90ee90');
-  gradient.addColorStop(1, '#228b22');
+  if (now < pulseCooldownEnd) {
+    const tLinear = clamp(1 - (pulseCooldownEnd - now) / 500, 0, 1);
+    const t = 1 - Math.cos((tLinear * Math.PI) / 2);
+    const r1 = Math.round(255 + (144 - 255) * t);
+    const g1 = Math.round(255 + (238 - 255) * t);
+    const b1 = Math.round(255 + (144 - 255) * t);
+    const r2 = Math.round(255 + (34  - 255) * t);
+    const g2 = Math.round(255 + (139 - 255) * t);
+    const b2 = Math.round(255 + (34  - 255) * t);
+    gradient.addColorStop(0, `rgb(${r1},${g1},${b1})`);
+    gradient.addColorStop(1, `rgb(${r2},${g2},${b2})`);
+  } else {
+    gradient.addColorStop(0, '#90ee90');
+    gradient.addColorStop(1, '#228b22');
+  }
   ctx.fillStyle = gradient;
   ctx.fill();
   ctx.closePath();
@@ -219,7 +236,8 @@ function resetGame() {
   player.alive   = true;
   player.angle   = 0;
 
-  pulse.active = false;
+  pulse.active      = false;
+  pulseCooldownEnd  = 0;
 
   gameOver     = false;
   gameOverTime = 0;
@@ -386,7 +404,7 @@ function update(timestamp) {
     player.y += moveY * player.speed * delta;
 
     if (player.alive) {
-      drawPlayer();
+      drawPlayer(now);
 
       if (pulse.active) {
         if (now < pulse.endTime) {

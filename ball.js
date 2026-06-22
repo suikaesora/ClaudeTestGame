@@ -370,7 +370,7 @@ function update(timestamp) {
   // ボール移動・描画
   for (const b of balls) {
     const spawned = updateBall(b, delta);
-    if (spawned && b === originalBall) {
+    if (spawned && b === originalBall && !gameOver) {
       spawned.spawnTime = now + SPAWN_PREVIEW_MS;
       pendingSpawns.push(spawned);
     }

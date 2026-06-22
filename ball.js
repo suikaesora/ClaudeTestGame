@@ -300,12 +300,22 @@ function updateBall(b, delta) {
   let spawned = null;
   let hitWall = false;
 
-  if (b.x + b.radius >= canvas.width || b.x - b.radius <= 0) {
-    b.dx *= -1;
+  if (b.x + b.radius >= canvas.width) {
+    b.dx = -Math.abs(b.dx);
+    b.x = canvas.width - b.radius;
+    hitWall = true;
+  } else if (b.x - b.radius <= 0) {
+    b.dx = Math.abs(b.dx);
+    b.x = b.radius;
     hitWall = true;
   }
-  if (b.y + b.radius >= canvas.height || b.y - b.radius <= 0) {
-    b.dy *= -1;
+  if (b.y + b.radius >= canvas.height) {
+    b.dy = -Math.abs(b.dy);
+    b.y = canvas.height - b.radius;
+    hitWall = true;
+  } else if (b.y - b.radius <= 0) {
+    b.dy = Math.abs(b.dy);
+    b.y = b.radius;
     hitWall = true;
   }
 

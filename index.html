@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bouncing Ball</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="timer">00:00:00</div>
+  <div id="best-time">--:--:--</div>
+  <canvas id="canvas"></canvas>
+  <div id="rules">
+    <p>【ルール】</p>
+    <p>・あなたは緑色のボール。カーソルに追従します。</p>
+    <p>・最初は黄色のボールだけ。黄色のボールは徐々に加速し、壁に当たる度に赤色のボールを作り出します。</p>
+    <p>・黄色か赤色のボールに触れるとゲームオーバーです。</p>
+    <p>・マウスの左クリックで進行方向に大きな緑色の円を発生させ、その中のボールを味方（青色のボール）にします。</p>
+    <p>・青色のボールは一定時間後に爆発し、周りの赤いボールを消滅させます。</p>
+  </div>
+  <script src="ball.js"></script>
+</body>
+</html>
